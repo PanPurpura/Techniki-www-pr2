@@ -2,11 +2,69 @@ import React from 'react'
 import '../App.css'
 //import axios from "axios"
 //import { useEffect, useState } from "react";
+import {Formik, Form, Field, ErrorMessage} from "formik";
+import * as Yup from "yup";
+import {Link} from "react-router-dom";
+
 
 
 function Home() {
     return (
         <div>
+
+            <div className="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1}>
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+                        </div>
+                        <div className="modal-body">
+                            <Formik>
+                                <Form className="formContainer" >
+                                    <label>Login</label>
+                                    <Field
+                                        autocomplete = "off"
+                                        id = "inputLogin"
+                                        name = "Login"
+                                        placeholder = "Insert your login"
+                                    />
+                                    <label>Hasło</label>
+                                    <Field
+                                        autocomplete = "off"
+                                        id = "inputHaslo"
+                                        name = "Haslo"
+                                        placeholder = "Insert your password"
+                                    />
+                                </Form>
+                            </Formik>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary">Wyślij</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="staticBackdrop1" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1}>
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+                        </div>
+                        <div className="modal-body">
+                            Test rejestracji
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary">Wyślij</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div>
                 <nav className="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
                     <div className="container-fluid">
@@ -36,14 +94,20 @@ function Home() {
                                     </ul>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="nav-link" href="o_nas.html">O nas</a>
+                                    <a className="nav-link" href="/o_nas">O nas</a>
                                 </li>
                                 <li className="nav-item">
                                     <a className="nav-link" href="Licencja.html">Kontakt</a>
                                 </li>
                             </ul>
-                            <button className="btn btn-secondary m-2" type="submit">Zaloguj się</button>
-                            <button className="btn btn-secondary" type="submit">Zarejestruj się</button>
+                            <button type="button" className="btn btn-secondary m-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                Zaloguj się
+                            </button>
+
+                            <button type="button" className="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop1">
+                                Zarejestruj się
+                            </button>
+
                         </div>
                     </div>
                 </nav>
@@ -56,7 +120,7 @@ function Home() {
                                     <h5 className="text-white">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu luctus ipsum, rhoncus semper magna. Nulla nec magna sit amet sem interdum condimentum.</h5>
                                 </div>
                                 <div className="col-12 col-md-6">
-                                    <img className="img-fluid Photo" src="img/strzelnica.jpeg" />
+                                    <img className="img-fluid Photo" src={require('./img/strzelnica.jpeg')} />
                                 </div>
                             </div>
                         </div>
@@ -65,7 +129,7 @@ function Home() {
                         <div className="container">
                             <div className="row">
                                 <div className="col-12 col-md-6 justify-content-center order-0">
-                                    <img className="img-fluid Photo" src="img/zbrojownia.jpg" />
+                                    <img className="img-fluid Photo" src={require('./img/zbrojownia.jpg')} />
                                 </div>
                                 <div className="col-12 col-md-6 align-self-center">
                                     <h1 className="text-white">Jesteśmy specjalistami</h1>
@@ -83,9 +147,9 @@ function Home() {
                             </h5>
                         </div>
                         <div className="images row text-center py-5">
-                            <a href="bron_krotka.html" className="col-12 col-md-4"><img src="img/wep1.jpg" className="img-fluid ms-auto l_photo" alt="..." /></a>
-                            <a href="bron_dluga.html" className="col-12 col-md-4"><img src="img/dl.jpg" className="img-fluid ms-auto l_photo" alt="..." /></a>
-                            <a href="bron_historyczna.html" className="col-12 col-md-4"><img src="img/his.jpg" className="img-fluid ms-auto l_photo" alt="..." /></a>
+                            <a href="bron_krotka.html" className="col-12 col-md-4"><img src={require('./img/wep1.jpg')} className="img-fluid ms-auto l_photo" alt="..." /></a>
+                            <a href="bron_dluga.html" className="col-12 col-md-4"><img src={require('./img/dl.jpg')} className="img-fluid ms-auto l_photo" alt="..." /></a>
+                            <a href="bron_historyczna.html" className="col-12 col-md-4"><img src={require('./img/his.jpg')} className="img-fluid ms-auto l_photo" alt="..." /></a>
                         </div>
                     </div>
                 </div>
@@ -95,7 +159,7 @@ function Home() {
                         <div className="row d-flex justify-content-center">
                             <div className="team-member col-8 col-md-6 col-lg-3">
                                 <div className="card one">
-                                    <img src="img/1.jpg" className="card-img-top" alt="..." />
+                                    <img src={require('./img/1.jpg')} className="card-img-top" alt="..." />
                                     <div className="social-icons">
                                         <a href="#"><i className="fa-brands fa-facebook" /></a>
                                         <a href="#"><i className="fa-brands fa-twitter" /></a>
@@ -113,7 +177,7 @@ function Home() {
                             </div>
                             <div className="team-member col-8 col-md-6 col-lg-3">
                                 <div className="card two">
-                                    <img src="img/2.jpg" className="card-img-top" alt="..." />
+                                    <img src={require('./img/2.jpg')} className="card-img-top" alt="..." />
                                     <div className="social-icons">
                                         <a href="#"><i className="fa-brands fa-facebook" /></a>
                                         <a href="#"><i className="fa-brands fa-twitter" /></a>
@@ -131,7 +195,7 @@ function Home() {
                             </div>
                             <div className="team-member col-8 col-md-6 col-lg-3">
                                 <div className="card one">
-                                    <img src="img/3.jpg" className="card-img-top" alt="..." />
+                                    <img src={require('./img/3.jpg')} className="card-img-top" alt="..." />
                                     <div className="social-icons">
                                         <a href="#"><i className="fa-brands fa-facebook" /></a>
                                         <a href="#"><i className="fa-brands fa-twitter" /></a>
@@ -149,7 +213,7 @@ function Home() {
                             </div>
                             <div className="team-member col-8 col-md-6 col-lg-3">
                                 <div className="card two">
-                                    <img src="img/4.jpg" className="card-img-top" alt="..." />
+                                    <img src={require('./img/4.jpg')} className="card-img-top" alt="..." />
                                     <div className="social-icons">
                                         <a href="#"><i className="fa-brands fa-facebook" /></a>
                                         <a href="#"><i className="fa-brands fa-twitter" /></a>
@@ -180,16 +244,16 @@ function Home() {
                                     </div>
                                     <div className="carousel-inner">
                                         <div className="carousel-item active">
-                                            <img src="img/kafelek1.jpg" className="d-block w-100" alt="..." />
+                                            <img src={require('./img/kafelek1.jpg')} className="d-block w-100" alt="..." />
                                         </div>
                                         <div className="carousel-item">
-                                            <img src="img/kafelek3.jpg" className="d-block w-100" alt="..." />
+                                            <img src={require('./img/kafelek3.jpg')} className="d-block w-100" alt="..." />
                                         </div>
                                         <div className="carousel-item">
-                                            <img src="img/kafelek4.jpg" className="d-block w-100" alt="..." />
+                                            <img src={require('./img/kafelek4.jpg')} className="d-block w-100" alt="..." />
                                         </div>
                                         <div className="carousel-item">
-                                            <img src="img/kafelek5.jpg" className="d-block w-100" alt="..." />
+                                            <img src={require('./img/kafelek5.jpg')} className="d-block w-100" alt="..." />
                                         </div>
                                     </div>
                                     <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -208,7 +272,7 @@ function Home() {
                     </div>
                 </div>
                 <footer className="Footer container-fluid text-white py-1 pt-4">
-                    <p className="fw-bold text-center align-self-center">Military Site Sp. z o.o. 2022 <img className="img-fluid" src="img/military_site.jpg" width={25} height={35} /></p>
+                    <p className="fw-bold text-center align-self-center">Military Site Sp. z o.o. 2022 <img className="img-fluid" src={require('./img/military_site.jpg')} width={25} height={35} /></p>
                 </footer>
             </div>
         </div>

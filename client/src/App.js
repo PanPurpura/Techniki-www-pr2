@@ -1,7 +1,7 @@
 import './App.css';
 import {BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from './pages/Home'
-import o_nas from './pages/o_nas'
+import O_nas from './pages/o_nas'
 
 function App() {
   /*useEffect(()=>{
@@ -10,14 +10,16 @@ function App() {
     });
   })*/
 
-  return <div className="App">
-    <Router>
-      <Routes>
-        <Route path="/" exact element={<Home/>} />
-        <Route path="/o_nas" exact element={<o_nas/>} />
-      </Routes>
-    </Router>
-  </div>
+  return (
+      <div className="App">
+          <Router>
+            <Routes>
+              <Route path="/" exact element={<Home />} />
+              <Route path="/O_nas" exact element={<O_nas />} />
+            </Routes>
+          </Router>
+      </div>
+  );
 }
 
 export default App;
