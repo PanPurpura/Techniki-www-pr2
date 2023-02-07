@@ -1,5 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const Weapons = sequelize.define("Weapons", {
+        photo: {
+            type: DataTypes.BLOB,
+            allowNull: true,
+        },
         name: {
             type: DataTypes.STRING,
             allowNull: false,

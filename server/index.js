@@ -9,8 +9,10 @@ const db = require("./models");
 
 // Routers
 const AccountsRouter = require("./routes/Accounts");
+const WeaponsRouter = require("./routes/Weapons");
 
 app.use("/accounts", AccountsRouter);
+app.use("/weapons", WeaponsRouter);
 
 db.sequelize.sync().then(() => {
     app.listen(3001, () => {

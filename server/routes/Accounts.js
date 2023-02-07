@@ -5,11 +5,10 @@ const { Accounts } = require("../models");
 
 
 router.get("/", async (req, res) => {
-    const listOfPosts = await Accounts.findAll();
-    res.json(listOfPosts);
-    /*const body = req.body
-    const email = body.email
-    const password = body.password
+   /* const listOfPosts = await Accounts.findAll();
+    res.json(listOfPosts);*/
+    const email = req.query.email
+    const password = req.query.password
     const account = await Accounts.findOne(
         {
             where: {email : email}
@@ -22,19 +21,24 @@ router.get("/", async (req, res) => {
         res.json({
             login: account["login"],
             password: account["password"],
-            email: account["email"]
+            email: account["email"],
+            phone: account["phone"],
+            name: account["name"],
+
         });
     }
     else{
         res.json("Wrong Password");
-    }*/
+    }
 });
 
 router.post("/",  async (req, res) => {
     const body = req.body
-    const login = body.login
+    let login = body.login
     const password = body.password
     const email = body.email
+    let phone = body.phone
+    let name = body.name
 
     const [u, created] = await Accounts.findOrCreate(
         {
@@ -47,10 +51,41 @@ router.post("/",  async (req, res) => {
         }
     );
     if (created){
-        res.json("Account created");
+        res.json({
+            login: login,
+            password: password,
+            email: email
+        });
     }
     else{
         res.json("User already exists!");
+        const account = await Accounts.findOne(
+            {
+                where: {email : email}
+            }
+        )
+
+        console.log(account);
+        console.log(login,name,phone);
+        if(login === "")
+        {
+            login = account.login;
+        }
+        if(phone === "")
+        {
+            phone = account.phone;
+        }
+        if(name === "") {
+            name = account.name;
+        }
+        console.log(login, name, phone);
+        await Accounts.update({
+            login: login,
+            phone: phone,
+            name: name,
+            },
+            {where: {email: email}}
+        )
     }
 });
 
