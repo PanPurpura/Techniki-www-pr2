@@ -5,8 +5,6 @@ const { Accounts } = require("../models");
 
 
 router.get("/", async (req, res) => {
-   /* const listOfPosts = await Accounts.findAll();
-    res.json(listOfPosts);*/
     const email = req.query.email
     const password = req.query.password
     const account = await Accounts.findOne(

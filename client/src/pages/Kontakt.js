@@ -17,6 +17,14 @@ function Kontakt() {
         email: "",
     };
 
+    const init = {
+        imie: "",
+        nazwisko: "",
+        email: "",
+        temat: "",
+        wiadomosc: "",
+    };
+
     const validationSchema = Yup.object().shape({
         password: Yup.string().min(3).max(10).required("Hasło musi mieć długość od 3 do 10 znaków."),
         email: Yup.string().email('Niepoprawny format adresu e-mail').required("To pole jest wymagane")
@@ -25,6 +33,12 @@ function Kontakt() {
     const validationSchema1 = Yup.object().shape({
         login: Yup.string().required("To pole jest wymagane"),
         password: Yup.string().min(3).max(10).required("Hasło musi mieć długość od 3 do 10 znaków."),
+        email: Yup.string().email('Niepoprawny format adresu e-mail').required("To pole jest wymagane")
+    })
+
+    const validation = Yup.object().shape({
+        imie: Yup.string().required("To pole jest wymagane"),
+        nazwisko: Yup.string().required("To pole jest wymagane"),
         email: Yup.string().email('Niepoprawny format adresu e-mail').required("To pole jest wymagane")
     })
 
@@ -37,6 +51,8 @@ function Kontakt() {
             }
         ).then((response) => {
             sessionStorage.setItem("zalogowany", "1");
+            sessionStorage.setItem("email", response.data.email);
+            sessionStorage.setItem("password", response.data.password);
             console.log(response);
             window.location.reload()
         });
@@ -45,8 +61,17 @@ function Kontakt() {
     const onSubmit1 = (data) => {
         axios.post("http://localhost:3001/accounts", data).then((response) => {
             sessionStorage.setItem("zalogowany", "1");
+            sessionStorage.setItem("email", response.data.email);
+            sessionStorage.setItem("password", response.data.password);
             console.log(response);
             window.location.reload()
+        });
+    };
+
+    const onSubmit2 = (data) => {
+        axios.post("http://localhost:3001/complains", data).then((response) => {
+            window.location.reload();
+            console.log(response)
         });
     };
 
@@ -58,6 +83,8 @@ function Kontakt() {
             <a className="nav-link" aria-current="page" href="/user"><i className="bi bi-person user me-2"></i></a>
             <button onClick={() => {
                 sessionStorage.removeItem("zalogowany");
+                sessionStorage.removeItem("email");
+                sessionStorage.removeItem("login");
                 window.location.reload();
             }} type="button" className="btn btn-danger m-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                 Wyloguj
@@ -210,30 +237,59 @@ function Kontakt() {
                         <div className="container">
                             <div className="row d-flex justify-content-center">
                                 <div className="col-12 col-md-6 px-5">
-                                    <h4 className="text-white text-center py-3">Szybki kontakt</h4>
-                                    <lable className="text-white">Imię i nazwisko</lable>
-                                    <div className="input-group mb-3">
-                                        <input type="text" className="form-control" placeholder="Andrzej" aria-label="Username" aria-describedby="basic-addon1" />
-                                        <input type="text" className="form-control" placeholder="Nowak" aria-label="Username" aria-describedby="basic-addon1" />
-                                    </div>
-                                    <lable className="text-white">Adres E-mail</lable>
-                                    <div className="input-group mb-3">
-                                        <input type="text" className="form-control" placeholder="andrzej.nowak" aria-label="Username" />
-                                        <span className="input-group-text">@</span>
-                                        <input type="text" className="form-control" placeholder="example.com" aria-label="Server" />
-                                    </div>
-                                    <label className="text-white">Temat wiadomości</label>
-                                    <select className="form-select mb-3" aria-label="Default select example">
-                                        <option selected>Temat</option>
-                                        <option value={1}>Skarga</option>
-                                        <option value={2}>Rezerwacja</option>
-                                        <option value={3}>Inne</option>
-                                    </select>
-                                    <lable className="text-white">Wiadomość</lable>
-                                    <div className="input-group pb-3">
-                                        <textarea className="form-control" aria-label="Wiadomość" defaultValue={""} />
-                                    </div>
-                                    <div className="pb-3 text-end"><button type="button" className="btn btn-danger">Wyślij</button></div>
+                                        <h4 className="text-white text-center py-3">Szybki kontakt</h4>
+
+                                    <Formik initialValues = {init} onSubmit={onSubmit2} validationSchema={validation}>
+                                        <Form className="formContainer text-white" >
+                                            <label className="label_">Imię:</label>
+                                            <ErrorMessage name="imie" component="span" />
+                                            <Field
+                                                autoComplete = "off"
+                                                id = "inputImie"
+                                                className="col-12"
+                                                name = "imie"
+                                                placeholder = "Andrzej"
+                                            />
+                                            <label className="label_">Nazwisko:</label>
+                                            <ErrorMessage name="nazwisko" component="span" />
+                                            <Field
+                                                autoComplete = "off"
+                                                id = "inputNazwisko"
+                                                className="col-12"
+                                                name = "nazwisko"
+                                                placeholder = "Nowak"
+                                            />
+                                            <label className="label_">Adres e-mail:</label>
+                                            <ErrorMessage name="email" component="span" />
+                                            <Field
+                                                autoComplete = "off"
+                                                id = "inputEm"
+                                                type="email"
+                                                className="col-12"
+                                                name = "email"
+                                                placeholder = "andrzej.nowak@example.com"
+                                            />
+                                            <label className="label_">Temat:</label>
+                                            <ErrorMessage name="temat" component="span" />
+                                            <Field as="select" name="temat" className="col-12" autoComplete="off" placeholder="temat">
+                                                <option value="skarga">Skarga</option>
+                                                <option value="rezerwacja">Rezerwacja</option>
+                                                <option value="inne">Inne</option>
+                                            </Field>
+                                            <label className="label_">Wiadomosc:</label>
+                                            <ErrorMessage name="wiadomosc" component="span" />
+                                            <Field
+                                                autoComplete = "off"
+                                                id = "inputText"
+                                                className="col-12"
+                                                name = "wiadomosc"
+                                                placeholder = "Wprowadz wiadomosc"
+                                            />
+
+                                            <button type="submit" className="btn m-auto my-3 btn-danger col-4">Wyślij</button>
+                                        </Form>
+                                    </Formik>
+
                                 </div>
                                 <div className="col-12 col-md-6 align-self-center px-5 pb-3">
                                     <div className="card">
@@ -342,3 +398,54 @@ function Kontakt() {
 }
 
 export default Kontakt
+
+/*
+<Formik initialValues={init} onSubmit={compS} validationSchema={validation}>
+                                        <Form className="formContainer">
+                                            <label className="text-white">Imię:</label>
+                                                <ErrorMessage name="imie" component="span" />
+                                                <Field
+                                                    className="col-12"
+                                                    autoComplete = "off"
+                                                    id = "inputImie"
+                                                    name = "imie"
+                                                    placeholder = "Andrzej"
+                                                />
+                                            <label className="text-white">Nazwisko:</label>
+                                                <ErrorMessage name="nazwisko" component="span" />
+                                                <Field
+                                                    className="col-12"
+                                                    autoComplete = "off"
+                                                    id = "inputNazwisko"
+                                                    name = "nazwisko"
+                                                    placeholder = "Nowak"
+                                                />
+                                            <label className="text-white">Adres E-mail</label>
+                                                <ErrorMessage name="em" component="span" />
+                                                <Field
+                                                    className="col-12"
+                                                    autoComplete = "off"
+                                                    type = "email"
+                                                    id = "inputEm"
+                                                    name = "em"
+                                                    placeholder = "andrzej.nowak@example.com"
+                                                />
+                                            <label className="text-white">Temat wiadomości</label>
+                                            <Field as="select" className="col-12" name="options">
+                                                <option value="Skarga">Skarga</option>
+                                                <option value="Rezerwacja">Rezerwacja</option>
+                                                <option value="Inne">Inne</option>
+                                            </Field>
+                                            <lable className="text-white">Wiadomość</lable>
+                                                <ErrorMessage name="text" component="span" />
+                                                <Field
+                                                    className="col-12"
+                                                    autoComplete = "off"
+                                                    id = "inputText"
+                                                    name = "text"
+                                                    placeholder = "Wprowadz wiadomosc"
+                                                />
+                                            <button type="submit" className="btn btn-danger col-6 my-3">Wyślij</button>
+                                        </Form>
+                                    </Formik>
+ */

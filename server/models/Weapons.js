@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const Weapons = sequelize.define("Weapons", {
         photo: {
-            type: DataTypes.BLOB,
+            type: DataTypes.BLOB('long'),
             allowNull: true,
         },
         name: {

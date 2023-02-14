@@ -11,12 +11,6 @@ import React from "react";
 
 function App() {
 
-  /*useEffect(()=>{
-    axios.get("http://localhost:3001/accounts").then((response) => {
-      console.log(response.data);
-    });
-  })*/
-
   return (
       <div className="App">
 

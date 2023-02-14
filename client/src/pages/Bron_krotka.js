@@ -1,11 +1,59 @@
 import React from "react";
 import '../App.css'
 import o_nas from "./o_nas";
-import {ErrorMessage, Field, Form, Formik} from "formik";
+import {ErrorMessage, Field, Form, Formik, useField} from "formik";
 import * as Yup from "yup";
-import axios from "axios";
+import axios, {all} from "axios";
+import { useEffect, useState } from "react";
+import { Buffer } from "buffer";
+import DatePicker from "react-datepicker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
+import "react-datepicker/dist/react-datepicker.css";
+import "react-datetime/css/react-datetime.css";
+import moment from "moment";
+
 
 function Bron_krotka() {
+
+    const [records, setRecords] = useState([]);
+    const [allRecords, setAllRecords] = useState([]);
+    const MyDatePicker = ({ name = "" }) => {
+        const [field, meta, helpers] = useField(name);
+
+        const { value } = meta;
+        const { setValue } = helpers;
+
+        return (
+            <DatePicker
+                {...field}
+                selected={value}
+                onChange={(date) => setValue(date)}
+            />
+        );
+    };
+
+    useEffect(() => {
+        axios.get("http://localhost:3001/weapons", {
+            params: {
+                type: "Bron krotka"
+            }
+        }).then((response) => {
+            setRecords(response.data);
+        });
+
+        axios.get("http://localhost:3001/weapons").then((response) => {
+            setAllRecords(response.data);
+        });
+    }, []);
+
+    function funL(index) {
+        for(let i = 0; i < allRecords.length; i++) {
+            if(allRecords[i].id === index) {
+                return allRecords[i];
+            }
+        }
+    }
 
     const initialValues = {
         email: "",
@@ -28,7 +76,6 @@ function Bron_krotka() {
         password: Yup.string().min(3).max(10).required("Hasło musi mieć długość od 3 do 10 znaków."),
         email: Yup.string().email('Niepoprawny format adresu e-mail').required("To pole jest wymagane")
     })
-
     const onSubmit = (data) => {
         axios.get("http://localhost:3001/accounts", {
                 params: {
@@ -37,30 +84,104 @@ function Bron_krotka() {
                 }
             }
         ).then((response) => {
-            sessionStorage.setItem("zalogowany", "1");
-            console.log(response);
-            window.location.reload()
+            if(response.data !== "Wrong Password" && response.data !== "Account doesn't find") {
+                sessionStorage.setItem("zalogowany", "1");
+                sessionStorage.setItem("email", response.data.email);
+                sessionStorage.setItem("password", response.data.password);
+                window.location.reload()
+            }
+            else
+            {
+                document.querySelector(".err").innerHTML = "Wprowadzono nieprawidlowe dane";
+                document.querySelector(".err").style.color = "red";
+            }
         });
     };
 
     const onSubmit1 = (data) => {
         axios.post("http://localhost:3001/accounts", data).then((response) => {
             sessionStorage.setItem("zalogowany", "1");
-            console.log(response);
+            sessionStorage.setItem("email", response.data.email);
+            sessionStorage.setItem("password", response.data.password);
             window.location.reload()
         });
     };
 
+    const onSubmit2 = (data) => {
+        axios.post("http://localhost:3001/reservations", {bronie:data.bronie, email:sessionStorage.getItem("email"), data:moment(data.data).format("YYYY-MM-DD HH:mm:ss")}).then((response) => {
+            console.log(response);
+            window.location.reload()
+        });
+    }
+
     let code;
+    let but;
+    let tab;
 
     if(sessionStorage.getItem("zalogowany") !== null)
     {
+        tab = (<th />)
+        but = (<td><button type="button" onClick={(event) => {
+            //console.log(event.target.parentNode.parentNode.childNodes.item(0).innerHTML);
+            let koszyk = sessionStorage.getItem("cart");
+            if(koszyk === null)
+            {
+                sessionStorage.setItem("cart", [event.target.parentNode.parentNode.childNodes.item(0).innerHTML]);
+            }
+            else
+            {
+                let tmp = Array.from(sessionStorage.getItem("cart").split(","));
+                tmp.push(event.target.parentNode.parentNode.childNodes.item(0).innerHTML);
+                sessionStorage.setItem("cart", tmp);
+            }
+            window.location.reload();
+
+        }} className="btn btn-secondary">Wybierz</button></td>)
         code = (<>
+            <div className="dropdown">
+                <button className="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i className="bi bi-cart-fill user me-2"></i>
+                </button>
+                <ul className="dropdown-menu">
+                    {
+                        allRecords.map((y) => {
+                            if(sessionStorage.getItem("cart") === "") {
+                                sessionStorage.removeItem("cart");
+                            }
+                            else if(sessionStorage.getItem("cart") !== null){
+                                if (y.id === 1) {
+                                    return Array.from(sessionStorage.getItem("cart").split(",")).map((value, key) => {
+                                        return (
+                                            <li>{funL(parseInt(value)).name} <a className={"float-end"}
+                                                                                style={{maxHeight: "16px"}}
+                                                                                id={key.toString()}
+                                                                                onClick={(event) => {
+                                                                                    let tmp = Array.from(sessionStorage.getItem("cart").split(","))
+                                                                                    tmp.splice(parseInt(event.target.parentNode.id), 1);
+                                                                                    sessionStorage.setItem("cart", tmp);
+                                                                                    window.location.reload();
+                                                                                }}><i className="bi bi-x-lg"
+                                                                                      style={{color: "red"}}></i></a>
+                                            </li>
+                                        );
+                                    });
+                                }
+                            }
+                        }
+                        )
+                    }
+                    <button type="button" className="btn btn-secondary float-end mt-4 me-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">
+                        Rezerwuj
+                    </button>
+                </ul>
+            </div>
             <a className="nav-link" aria-current="page" href="/user"><i className="bi bi-person user me-2"></i></a>
             <button onClick={() => {
                 sessionStorage.removeItem("zalogowany");
+                sessionStorage.removeItem("email");
+                sessionStorage.removeItem("login");
                 window.location.reload();
-            }} type="button" className="btn btn-danger m-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            }} type="button" className="btn btn-danger m-2">
                 Wyloguj
             </button></>)
     }
@@ -73,9 +194,52 @@ function Bron_krotka() {
                 Zarejestruj się
             </button></>)
     }
-
+    let weps;
+    if(sessionStorage.getItem("cart") !== null)
+         weps = sessionStorage.getItem("cart").toString();
     return (
         <div>
+
+            <div className="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false"
+                 tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content modal_ text-white">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="staticBackdropLabel">Rezerwacja</h1>
+                        </div>
+                        <div className="modal-body">
+                            <Formik
+                                initialValues={{ bronie: sessionStorage.getItem("cart"), data: new Date() }}
+                                onSubmit={onSubmit2}
+                            >
+                                {(props) => (
+                                    <Form>
+                                        <div class="form-group">
+                                            <label className="label_">Wybrane nr. broni:</label>
+                                            <ErrorMessage name="wep" component="span" />
+                                            <Field
+                                                readOnly
+                                                autoComplete = "off"
+                                                className = "col-12"
+                                                id = "inputWep"
+                                                name = "wep"
+                                                value = {weps}
+                                            />
+                                            <label className="label_">Data:</label>
+                                            <ErrorMessage name="date" component="span" />
+                                            <MyDatePicker name="date" />
+                                        </div>
+                                        <button type="submit" className="btn m-auto mt-4 btn-danger col-4">Akceptuj</button>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div className="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1}>
                 <div className="modal-dialog">
@@ -107,6 +271,7 @@ function Bron_krotka() {
                                     <button type="submit" className="btn m-auto mt-4 btn-danger col-4">Zaloguj</button>
                                 </Form>
                             </Formik>
+                            <span className="err"></span>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
@@ -204,7 +369,130 @@ function Bron_krotka() {
                 <div className="container-fluid Background">
                     <div className="container text-center">
                         <div className="row row-cols-1 row-cols-lg-3 row-cols-sm-2 g-5 py-5 text-center justify-content-center">
-                            <div className="col">
+
+                            {records.map((value) => {
+                                return (
+                                    <div className="col">
+                                        <div className="card WP">
+                                            <img src={"data:image/png;base64," + Buffer.from(value.photo).toString("base64")} className="card-img-top c_Photo" alt="..." />
+                                            <div className="card-body bg-dark">
+                                                <h6 className="card-title text-white">{value.id}. {value.name}</h6>
+                                                <div className="hline" />
+                                                <p>
+                                                    <a className="btn btn-secondary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                                        Więcej
+                                                    </a>
+                                                </p>
+                                                <div className="collapse pb-3" id="collapseExample">
+                                                    <div className="card card-body">
+                                                        <h6><b>Typ:</b> Pistolet samopowtarzalny</h6>
+                                                        <h6><b>Kaliber:</b> 9x19mm</h6>
+                                                        <h6><b>Pojemność magazynka:</b> 16</h6>
+                                                        <h6><b>Waga: </b> 630g</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+
+                        </div>
+                        <h1 className="text center text-white pb-3"><i><u>Cennik</u></i></h1>
+                        <div className="row d-flex">
+                            <table className="table table-dark table-striped pb-5 text-center">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Nr. Broni</th>
+                                    <th scope="col">Naboje</th>
+                                    <th scope="col">Cena</th>
+                                    {tab}
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {records.map((value) => {
+                                    return (
+                                        <tr key = {value.id}>
+                                            <th scope="row">{value.id}</th>
+                                            <td>{value.bullets_num}</td>
+                                            <td>{value.price} zł</td>
+                                            {but}
+                                        </tr>
+                                    );
+                                })}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default Bron_krotka
+
+/*
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>10</td>
+                                    <td>40 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">2</th>
+                                    <td>7</td>
+                                    <td>50 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">3</th>
+                                    <td>10</td>
+                                    <td>40 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">4</th>
+                                    <td>10</td>
+                                    <td>40 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">5</th>
+                                    <td>7</td>
+                                    <td>40 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">6</th>
+                                    <td>5</td>
+                                    <td>80 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">7</th>
+                                    <td>10</td>
+                                    <td>40 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">8</th>
+                                    <td>7</td>
+                                    <td>50 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">9</th>
+                                    <td>10</td>
+                                    <td>40 zł</td>
+                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
+                                </tr>
+
+
+                                                            <div className="col">
                                 <div className="card WP">
                                     <img src={require('./img/ASG.jpg')} className="card-img-top c_Photo" alt="..." />
                                     <div className="card-body bg-dark">
@@ -402,81 +690,5 @@ function Bron_krotka() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <h1 className="text center text-white pb-3"><i><u>Cennik</u></i></h1>
-                        <div className="row d-flex">
-                            <table className="table table-dark table-striped pb-5 text-center">
-                                <thead>
-                                <tr>
-                                    <th scope="col">Nr. Broni</th>
-                                    <th scope="col">Naboje</th>
-                                    <th scope="col">Cena</th>
-                                    <th />
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>10</td>
-                                    <td>40 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">2</th>
-                                    <td>7</td>
-                                    <td>50 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">3</th>
-                                    <td>10</td>
-                                    <td>40 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">4</th>
-                                    <td>10</td>
-                                    <td>40 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">5</th>
-                                    <td>7</td>
-                                    <td>40 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">6</th>
-                                    <td>5</td>
-                                    <td>80 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">7</th>
-                                    <td>10</td>
-                                    <td>40 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">8</th>
-                                    <td>7</td>
-                                    <td>50 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">9</th>
-                                    <td>10</td>
-                                    <td>40 zł</td>
-                                    <td><button type="button" className="btn btn-secondary">Wybierz</button></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
 
-export default Bron_krotka
+ */

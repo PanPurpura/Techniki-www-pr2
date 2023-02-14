@@ -36,17 +36,23 @@ function Home() {
 
     const onSubmit = (data) => {
         axios.get("http://localhost:3001/accounts", {
-            params: {
-                email: data['email'],
-                password: data['password'].toString(),
+                params: {
+                    email: data['email'],
+                    password: data['password'].toString(),
+                }
             }
-        }
         ).then((response) => {
-           sessionStorage.setItem("zalogowany", "1");
-           sessionStorage.setItem("email", response.data.email);
-           sessionStorage.setItem("password", response.data.password);
-           console.log(response);
-           window.location.reload()
+            if(response.data !== "Wrong Password" && response.data !== "Account doesn't find") {
+                sessionStorage.setItem("zalogowany", "1");
+                sessionStorage.setItem("email", response.data.email);
+                sessionStorage.setItem("password", response.data.password);
+                window.location.reload()
+            }
+            else
+            {
+                document.querySelector(".err").innerHTML = "Wprowadzono nieprawidlowe dane";
+                document.querySelector(".err").style.color = "red";
+            }
         });
     };
 
@@ -71,7 +77,7 @@ function Home() {
             sessionStorage.removeItem("email");
             sessionStorage.removeItem("login");
             window.location.reload();
-        }} type="button" className="btn btn-danger m-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        }} type="button" className="btn btn-danger m-2">
             Wyloguj
         </button></>)
     }

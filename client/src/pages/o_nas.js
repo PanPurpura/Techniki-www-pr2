@@ -39,6 +39,8 @@ function o_nas() {
             }
         ).then((response) => {
             sessionStorage.setItem("zalogowany", "1");
+            sessionStorage.setItem("email", response.data.email);
+            sessionStorage.setItem("password", response.data.password);
             console.log(response);
             window.location.reload()
         });
@@ -47,6 +49,8 @@ function o_nas() {
     const onSubmit1 = (data) => {
         axios.post("http://localhost:3001/accounts", data).then((response) => {
             sessionStorage.setItem("zalogowany", "1");
+            sessionStorage.setItem("email", response.data.email);
+            sessionStorage.setItem("password", response.data.password);
             console.log(response);
             window.location.reload()
         });
@@ -60,6 +64,8 @@ function o_nas() {
             <a className="nav-link" aria-current="page" href="/user"><i className="bi bi-person user me-2"></i></a>
             <button onClick={() => {
                 sessionStorage.removeItem("zalogowany");
+                sessionStorage.removeItem("email");
+                sessionStorage.removeItem("login");
                 window.location.reload();
             }} type="button" className="btn btn-danger m-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                 Wyloguj
